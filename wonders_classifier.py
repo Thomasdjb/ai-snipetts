@@ -1,3 +1,7 @@
+#################################################################
+########################## IMPORTS ##############################
+#################################################################
+
 import os
 import pathlib
 
@@ -9,10 +13,19 @@ from IPython.display import clear_output
 from keras.callbacks import EarlyStopping
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 
+"""
+This file is designed to implement CNN for image classification. 
+Our application focus on classifying whether an image contains one of the 12 wonders listed in dataset.
+"""
+
+#################################################################
+###################### BASE PARAMETERS ##########################
+#################################################################
+
 CP_F = 0
 learning_rate = 0.001
 epochs = 20
-
+init_threshold = 0.5
 
 path = 'C:/Users/duboisrouvray/Documents/Entrainement_ML/WondersofWorld/'
 
@@ -21,6 +34,10 @@ image_height = 200
 image_width = image_height
 n_channel = 3
 batch_size = 2
+
+#################################################################
+########################## DATASET ##############################
+#################################################################
 
 data_dir_train = pathlib.Path('C:/Users/duboisrouvray/Documents/Entrainement_ML/WondersofWorld')
 
@@ -50,6 +67,10 @@ AUTOTUNE = tf.data.AUTOTUNE
 train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
 validation_dataset = validation_dataset.prefetch(buffer_size=AUTOTUNE)
 
+#################################################################
+########################### MODEL ###############################
+#################################################################
+
 data_augmentation = tf.keras.Sequential([
   tf.keras.layers.RandomZoom(0.1),
   tf.keras.layers.RandomFlip('horizontal'),
@@ -75,42 +96,54 @@ model = tf.keras.Sequential([
     ])
 model.summary()
 
+#################################################################
+######################### CALLBACKS #############################
+#################################################################
+
 if (CP_F) :
     checkpoint_path = "C:/Users/duboisrouvray/Documents/Entrainement_ML/checkpoints_Wonders/weights.04-0.6463.cpkt"
     checkpoint_dir = os.path.dirname(checkpoint_path)
     model.load_weights(checkpoint_path)
     
-
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate= learning_rate),
-              loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-              metrics = ['accuracy'])
-
 earlystop_callback = EarlyStopping(monitor='val_accuracy', patience=2, mode='max')
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath="C:/Users/duboisrouvray/Documents/Entrainement_ML/checkpoints_Wonders/weights.{epoch:02d}-{val_accuracy:.4f}.cpkt",
                                                  save_weights_only=True,
                                                  monitor='val_accuracy',
                                                  save_best_only=True,
                                                  mode='max',
-                                                 initial_value_threshold = 0.64,
+                                                 initial_value_threshold = init_threshold,
                                                  verbose=1)
-history = model.fit(train_dataset,
-                    epochs= epochs,
-                    validation_data = validation_dataset,
-                    callbacks=[cp_callback, earlystop_callback])
 
-learning_rate = 0.0001
+#################################################################
+########################## TRAINING #############################
+#################################################################
 
-history = model.fit(train_dataset,
-                    epochs= epochs,
-                    validation_data = validation_dataset,
-                    callbacks=[cp_callback, earlystop_callback])
-
-learning_rate = 0.00005
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate= learning_rate),
+              loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics = ['accuracy'])
 
 history = model.fit(train_dataset,
                     epochs= epochs,
                     validation_data = validation_dataset,
                     callbacks=[cp_callback, earlystop_callback])
+
+learning_rate = learning_rate/10
+
+history = model.fit(train_dataset,
+                    epochs= epochs,
+                    validation_data = validation_dataset,
+                    callbacks=[cp_callback, earlystop_callback])
+
+learning_rate = learning_rate/2
+
+history = model.fit(train_dataset,
+                    epochs= epochs,
+                    validation_data = validation_dataset,
+                    callbacks=[cp_callback, earlystop_callback])
+
+#################################################################
+################### TRAINING VISUALIZATION ######################
+#################################################################
 
 # summarize history for accuracy
 plt.style.use('dark_background')

@@ -6,9 +6,8 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial.distance import cdist
-
 from P01_utils import lire_donnees, visualiser_donnees
+from scipy.spatial.distance import cdist
 
 """
 This file is designed to implement a k neighbors classifier. 
@@ -21,6 +20,15 @@ We will implement the k neighbors classifier from scratch and with numpy and sci
 #################################################################
 
 np.random.seed(0)
+
+# This function return a dataset from parameters with normal distribution.
+# @Inputs :
+#  - n_samples : number of samples to produce
+#  - centers : the mean value of the samples
+#  - cluster_std : the standard deviation of the samples
+# @Outputs : 
+#  - X : dataset
+#  - y : 
 
 def make_blobs(n_samples, centers, cluster_std):
     # Version simplifiée de la fonction `make_blobs` de scikit-learn
@@ -45,6 +53,13 @@ def make_blobs(n_samples, centers, cluster_std):
 
     return X, y
 
+# This function produce a datset of n_individus size with (height,weight) points.
+# @Inputs :
+#  - n_individus : number of samples to produce
+# @Outputs : 
+#  - X : array of (height, weight) points
+#  - y_str : array of 'H'/'F' for each of X points
+
 
 def lire_donnees(n_individus):
     # Moyennes issues de https://liguecontrelobesite.org/actualite/taille-poids-et-tour-de-taille-photographie-2020-des-francais/
@@ -56,6 +71,10 @@ def lire_donnees(n_individus):
     y_str[y == 1] = "H"
     return X, y_str
 
+# This function plot the data into a file.
+# @Inputs :
+#  - X, y, X_test : input data
+#  - nom_fichier : name of the file you want to plot in
 
 def visualiser_donnees(X, y, X_test=None, nom_fichier=None):
     plt.figure()
